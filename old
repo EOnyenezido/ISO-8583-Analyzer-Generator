@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="utf-8" />
+	<title>Accenture | ISO 8583 Analyzer (1987 version only)</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<meta content="" name="ISO 8583 Analyzer (1987 version only)" />
+	<meta content="" name="Accenture" />
+	<!-- BEGIN GLOBAL CSS -->
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<!-- Bootstrap theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+	<!-- END GLOBAL CSS -->
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-6 col-xs-offset-3">
+				<form>
+					<div class="form-group">
+						<label for="ISO_message">Enter ISO Message</label>
+						<textarea id="ISO_message" rows="3" placeholder="Enter ISO HEX message" class="form-control col-xs-12"></textarea>
+					</div>
+					<label for="message_type">Select message type</label>
+					<div id="message_type" class="form-group">
+						<label class="radio-inline">
+						  <input type="radio" name="message_type_options" id="HEX_radio" value="option1" checked> HEX
+						</label>
+						<label class="radio-inline">
+						  <input type="radio" name="message_type_options" id="Dump_radio" value="option2"> Postilion Dump
+						</label>
+						<label class="radio-inline">
+						  <input type="radio" name="message_type_options" id="URL_radio" value="option3"> URL Encoded
+						</label>
+						<label class="radio-inline">
+						  <input type="radio" name="message_type_options" id="Stream_radio" value="option4"> Stream
+						</label>
+					</div>
+					<button type="submit" class="btn btn-primary">Analyze</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- BEGIN GLOBAL PLUGINS -->
+	<!-- JQuery -->
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+	<!-- Bootstrap JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<!-- END GLOBAL PLUGINS -->
+</body>
+</html>
