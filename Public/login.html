@@ -1,0 +1,112 @@
+        <!-- BEGIN : LOGIN PAGE 5-1 -->
+        <div style="background-color: black;width: 100%; height: 100%; opacity: 0.7;position: fixed;z-index:1" ng-if='login.processing'>
+            <div ng-spinner-bar class="page-spinner-bar" >
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+            </div>
+        </div>
+        
+        <div class="user-login-5">
+            <div class="row bs-reset">
+                <div class="col-md-6 bs-reset">
+                    <div class="login-bg" style="background-image:url(assets/img/login_1.jpg)">
+                        <img class="login-logo" src="assets/img/acn_login_logo_2.png" alt="Accenture logo" /> </div>
+                </div>
+                <div class="col-md-6 login-container bs-reset">
+                    <div class="login-content">
+                        <h1>Welcome. Please Login or <button id="new-user" class="btn green" type="submit">Request Access</button></h1>
+                        <p> Login to use the ISO 8583 Analyzer/Generator. Don't have an account? Simply sign up for one using the request access button - it only <br>takes a few seconds! </p>
+                        <form action="javascript:;" class="login-form" method="post" ng-submit='login.doLogin()'>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Username" name="username" ng-model='login.loginData.username' required/> </div>
+                                <div class="col-xs-6">
+                                    <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" name="password" ng-model='login.loginData.password' required/> </div>
+                            </div>
+                            <div class="alert alert-danger display-hide">
+                                <button class="close" data-close="alert"></button>
+                                <span>Enter any username and password. </span>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="rem-password">
+                                        <p>Remember Me
+                                            <input type="checkbox" class="rem-checkbox" />
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8 text-right">
+                                    <div class="forgot-password">
+                                        <a ng-href="/analyzer" id="forget-password" class="forget-password">Forgot Password?</a>
+                                    </div>
+                                    <button class="btn blue" type="submit">Sign In</button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- BEGIN NEW USER FORM -->
+                        <form class="new-form" action="javascript:;" method="post" ng-controller="userCreateController as user" ng-submit='user.saveUser()'>
+                            <h3 class="font-green">New Account</h3>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Name" name="name" ng-model='user.userData.name' required/> </div>
+                                <div class="col-xs-6">
+                                    <input class="form-control form-control-solid placeholder-no-fix" type="email" autocomplete="off" placeholder="Email" name="new_email" ng-model='user.userData.email' required/> </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Username" name="username" ng-model='user.userData.username' required/> </div>
+                                <div class="col-xs-6">
+                                    <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" name="password" ng-model='user.userData.password' required/> </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="back-btn" class="btn grey btn-default">Back</button>
+                                <button type="submit" class="btn blue btn-success uppercase pull-right">Submit</button>
+                            </div>
+                        </form>
+                        <!-- END NEW USER FORM -->
+                        <!-- BEGIN FORGOT PASSWORD FORM -->
+                        <form class="forget-form" action="javascript:;" method="post">
+                            <h3 class="font-green">Forgot Password ?</h3>
+                            <p> Enter your e-mail address below to reset your password. </p>
+                            <div class="form-group">
+                                <input class="form-control placeholder-no-fix" type="text" autocomplete="off" placeholder="Email" name="email" /> </div>
+                            <div class="form-actions">
+                                <button type="button" id="back-btn" class="btn grey btn-default">Back</button>
+                                <button type="submit" class="btn blue btn-success uppercase pull-right">Submit</button>
+                            </div>
+                        </form>
+                        <!-- END FORGOT PASSWORD FORM -->
+                    </div>
+                    <div class="login-footer">
+                        <div class="row bs-reset">
+                            <div class="col-xs-4 bs-reset">
+                                <ul class="login-social">
+                                    <li>
+                                        <a href="https://www.facebook.com/accenture" target="_blank">
+                                            <i class="icon-social-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://twitter.com/Accenture" target="_blank">
+                                            <i class="icon-social-twitter"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.linkedin.com/company/accenture" target="_blank">
+                                            <i class="fa fa-linkedin"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-xs-8 bs-reset">
+                                <div class="login-copyright text-right">
+                                    <p>Copyright &copy; Accenture 2016. All Rights Reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END : LOGIN PAGE 5-1 -->
