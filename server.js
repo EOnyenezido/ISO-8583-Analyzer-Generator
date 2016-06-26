@@ -55,7 +55,7 @@ app.use('/api', apiRoutes);
 // Main Catchall route - sends users to the angular frontend
 // Must come after API routes
 
-app.get('/', function(req, res)	{
+app.get('*', function(req, res)	{
 	res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 

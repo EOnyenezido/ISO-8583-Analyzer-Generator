@@ -473,7 +473,7 @@ angular.module('isoApp',['ngRoute'])
  		
  		if (data.success) {
  			// if a user successfully logs in, redirect to users page
- 			$location.path('/generator');
+ 			$location.path('/analyzer');
  			//window.location = "/analyzer";
  			// take out the processing icon
  			currentUser.processing = false;
@@ -774,7 +774,7 @@ angular.module('isoApp',['ngRoute'])
 
  $routeProvider
 
- //login view
+ //analyzer view
  .when('/', {
 		templateUrl : '../login.html',
 		controller: 'mainController as login'
@@ -786,7 +786,7 @@ angular.module('isoApp',['ngRoute'])
 		controller: 'mainController as main'
  })
 
- //users view (for admin only)
+ //analyzer view
  .when('/users', {
 		templateUrl : '../users.html',
 		controller: 'mainController as main'
@@ -795,7 +795,7 @@ angular.module('isoApp',['ngRoute'])
  // generator view
  .when('/generator', {
  		templateUrl: '../generator.html',
-		controller: 'mainController as main'
+ 		controller: 'mainController as main'
  });
 
  // get rid of the hash in the URL
