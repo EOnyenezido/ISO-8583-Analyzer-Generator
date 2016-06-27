@@ -275,6 +275,7 @@ angular.module('isoApp',['ngRoute'])
 }])
 
 .controller('generator', [function()	{
+	TableDatatablesEditable.init(); // intialize the table for adding data elements
 	var req = this;
 
 	var isoVersions = ['1987', '1993', '2003'];
@@ -438,7 +439,7 @@ angular.module('isoApp',['ngRoute'])
 
 }])
 
-.controller('mainController', function($rootScope, $location, Auth) {
+.controller('mainController', function($scope, $rootScope, $location, Auth) {
 
  var currentUser = this;
 
@@ -494,6 +495,11 @@ angular.module('isoApp',['ngRoute'])
  	$location.path('/');
  	//window.location = "/";
  };
+
+ $scope.$on('$viewContentLoaded', function() {
+ 	App.init();  // initialize core components
+  Login.init(); // initialize login components  
+ });
 
 })
 
