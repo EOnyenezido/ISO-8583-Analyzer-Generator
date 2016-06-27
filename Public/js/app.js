@@ -185,13 +185,14 @@ angular.module('isoApp',['ngRoute'])
 		if (dataElementDefinition.split('\n')[1].indexOf('n') > -1) {numericOnly = true};
 		if (dataElementDefinition.split('\n')[1].indexOf('s') > -1) {specialCharOnly = true};
 		if (dataElementDefinition.split('\n')[1].indexOf('b') > -1) {binaryOnly = true};
-		if (dataElementDefinition.split('\n')[1].indexOf('x+n') > -1) {singleAlphaPlusNumerical = true};
+		if (dataElementDefinition.split('\n')[1].indexOf('x+n') > -1) {singleAlphaPlusNumerical = true;numericOnly = false; alphabetsOnly = false};
 
 		if (alphabetsOnly && numericOnly && specialCharOnly && dataElement.replace(/.+/g, "").length > 0) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/.+/g, "") + '". Only alphabets, numbers and special characters are permitted. Please Check.';
 			return true;
 		} else if (singleAlphaPlusNumerical && dataElement.replace(/[A-Za-z0-9]+/g, "").length > 0) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets, numbers are permitted. Please Check.';
+			console.log(dataElement.replace(/[A-Za-z0-9]+/g, "").length)
 			return true;
 		} else if (alphabetsOnly && numericOnly && !specialCharOnly && dataElement.replace(/[A-Za-z0-9]+/g, "").length > 0) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets and numbers are permitted. Please Check.';
@@ -213,7 +214,10 @@ angular.module('isoApp',['ngRoute'])
 			return true;
 		};
 
-		if (parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < dataElement.length) {
+		if (singleAlphaPlusNumerical && parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < (dataElement.length - 1)) {
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", is longer than the permitted maximum of - "' + (parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) + 1) + '" digits. Please Check.';
+			return true;
+		}else	if (!singleAlphaPlusNumerical && parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < dataElement.length) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", is longer than the permitted maximum of - "' + dataElementDefinition.split('\n')[1].replace(/\D+/g, '') + '" digits. Please Check.';
 			return true;
 		};
@@ -276,6 +280,7 @@ angular.module('isoApp',['ngRoute'])
 
 .controller('generator', [function()	{
 	TableDatatablesEditable.init(); // intialize the table for adding data elements
+	ComponentsBootstrapSelect.init(); // intialize bootstrap select for MTI selection
 	var req = this;
 
 	var isoVersions = ['1987', '1993', '2003'];
@@ -390,7 +395,7 @@ angular.module('isoApp',['ngRoute'])
 		return parseInt(binInput, 2).toString(16);
 	};
 
-	function validateDataElement(dataElementDefinition, dataElement)	{
+	function validateDataElement(dataElementDefinition, dataElement)	{ // Possible improvement - make this function a global function available to both controllers, or service/controller which can be injected into both controllers
 		var alphabetsOnly = false;
 		var numericOnly = false;
 		var specialCharOnly = false;
@@ -401,36 +406,40 @@ angular.module('isoApp',['ngRoute'])
 		if (dataElementDefinition.split('\n')[1].indexOf('n') > -1) {numericOnly = true};
 		if (dataElementDefinition.split('\n')[1].indexOf('s') > -1) {specialCharOnly = true};
 		if (dataElementDefinition.split('\n')[1].indexOf('b') > -1) {binaryOnly = true};
-		if (dataElementDefinition.split('\n')[1].indexOf('x+n') > -1) {singleAlphaPlusNumerical = true};
+		if (dataElementDefinition.split('\n')[1].indexOf('x+n') > -1) {singleAlphaPlusNumerical = true;numericOnly = false; alphabetsOnly = false};
 
 		if (alphabetsOnly && numericOnly && specialCharOnly && dataElement.replace(/.+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/.+/g, "") + '". Only alphabets, numbers and special characters are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/.+/g, "") + '". Only alphabets, numbers and special characters are permitted. Please Check.';
 			return true;
 		} else if (singleAlphaPlusNumerical && dataElement.replace(/[A-Za-z0-9]+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets, numbers are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets, numbers are permitted. Please Check.';
+			console.log(dataElement.replace(/[A-Za-z0-9]+/g, "").length)
 			return true;
 		} else if (alphabetsOnly && numericOnly && !specialCharOnly && dataElement.replace(/[A-Za-z0-9]+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets and numbers are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets and numbers are permitted. Please Check.';
 			return true;
 		} else if (alphabetsOnly && !numericOnly && specialCharOnly && dataElement.replace(/^[0-9]+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/^[0-9]+/g, "") + '". Only alphabets and special characters are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/^[0-9]+/g, "") + '". Only alphabets and special characters are permitted. Please Check.';
 			return true;
 		} else if (!alphabetsOnly && numericOnly && specialCharOnly && dataElement.replace(/^[A-Za-z]+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/^[A-Za-z]+/g, "") + '". Only numbers and special characters are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/^[A-Za-z]+/g, "") + '". Only numbers and special characters are permitted. Please Check.';
 			return true;
 		} else if (!alphabetsOnly && numericOnly && !specialCharOnly && dataElement.replace(/\d+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/\d+/g, "") + '". Only numbers are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/\d+/g, "") + '". Only numbers are permitted. Please Check.';
 			return true;
 		} else if (alphabetsOnly && !numericOnly && !specialCharOnly && dataElement.replace(/[A-Za-z]+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z]+/g, "") + '". Only alphabets are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z]+/g, "") + '". Only alphabets are permitted. Please Check.';
 			return true;
 		} else if (!alphabetsOnly && !numericOnly && specialCharOnly && dataElement.replace(/^[A-Za-z0-9]+/g, "").length > 0) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/^[A-Za-z0-9]+/g, "") + '". Only special characters are permitted. Please Check.';
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/^[A-Za-z0-9]+/g, "") + '". Only special characters are permitted. Please Check.';
 			return true;
 		};
 
-		if (parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < dataElement.length) {
-			req.error = dataElementDefinition + ' - "' + dataElement  + '", is longer than the permitted maximum of - "' + dataElementDefinition.split('\n')[1].replace(/\D+/g, '') + '" digits. Please Check.';
+		if (singleAlphaPlusNumerical && parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < (dataElement.length - 1)) {
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", is longer than the permitted maximum of - "' + (parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) + 1) + '" digits. Please Check.';
+			return true;
+		}else	if (!singleAlphaPlusNumerical && parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < dataElement.length) {
+			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", is longer than the permitted maximum of - "' + dataElementDefinition.split('\n')[1].replace(/\D+/g, '') + '" digits. Please Check.';
 			return true;
 		};
 
@@ -498,7 +507,9 @@ angular.module('isoApp',['ngRoute'])
 
  $scope.$on('$viewContentLoaded', function() {
  	App.init();  // initialize core components
-  Login.init(); // initialize login components  
+ 	if (window.location.pathname == '/') {
+ 		Login.init(); // initialize login components for the login page
+ 	};
  });
 
 })
