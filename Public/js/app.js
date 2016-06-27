@@ -774,7 +774,7 @@ angular.module('isoApp',['ngRoute'])
 
  $routeProvider
 
- //analyzer view
+ //login view
  .when('/', {
 		templateUrl : '../login.html',
 		controller: 'mainController as login'
@@ -786,7 +786,7 @@ angular.module('isoApp',['ngRoute'])
 		controller: 'mainController as main'
  })
 
- //analyzer view
+ //users view
  .when('/users', {
 		templateUrl : '../users.html',
 		controller: 'mainController as main'
@@ -796,6 +796,11 @@ angular.module('isoApp',['ngRoute'])
  .when('/generator', {
  		templateUrl: '../generator.html',
  		controller: 'mainController as main'
+ })
+
+ // any other url
+ .otherwise({
+ 	redirectTo: '/'
  });
 
  // get rid of the hash in the URL
