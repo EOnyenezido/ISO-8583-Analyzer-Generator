@@ -93,7 +93,7 @@ apiRouter.route('/users')
 		user.username = req.body.username;
 		user.password = req.body.password;
 		user.approved = true;
-		user.isAdmin = true;
+		user.isAdmin = false;
 		// Save the user and check for errors
 		user.save(function(err)	{
 			if (err) {
@@ -105,7 +105,7 @@ apiRouter.route('/users')
 					return res.send(err);
 				}
 			}
-			res.json({success: true, message: 'Access successfully requested. Please wait for admin approval.'})
+			res.json({success: true, message: 'Access successfully granted. Redirecting to dashboard...'})
 		});
 	})
 	// Get all the users
@@ -116,6 +116,16 @@ apiRouter.route('/users')
 			res.json(users);
 		});
 	});
+
+apiRouter.route('/username/:user_name')
+	// Get the user with that username
+	.get(function(req, res)	{
+		User.findOne({username: req.params.user_name}, function(err, user)	{
+			if (err) res.send(err);
+			// Return the user with that username if found
+			res.json(user);
+		})
+	})
 
 apiRouter.route('/users/:user_id')
 	// Get user with the user id specified
