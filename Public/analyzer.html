@@ -228,9 +228,9 @@
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="item in request.res">
-                                                <td> {{item.dataType}} </td>
-                                                <td> {{item.raw}} </td>
-                                                <td> {{item.meaning}} </td>
+                                                <td> {{item[0]}} </td>
+                                                <td> {{item[1]}} </td>
+                                                <td> {{item[2]}} </td>
                                             </tr>
                                         </tbody>
                                     </table>

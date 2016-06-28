@@ -1,7 +1,10 @@
 angular.module('isoApp',['ngRoute'])
 
 .controller('analyzer',['$scope',function(scope)	{
+
 	var req = this;
+
+	var table = angular.element('#ISO_results');
 
 	req.isHex = true;
 
@@ -78,7 +81,7 @@ angular.module('isoApp',['ngRoute'])
 					else if (mtiCheck == 2) {return req.errorMessage = "Incorrect MTI - Message function field is incorrect!"}
 						else return req.errorMessage = "Incorrect MTI - Please check the MTI field";
 		};
-		req.res = [{dataType: "MTI", raw: mti, meaning: mtiMeaning}];
+		req.res = [[ "MTI", mti, mtiMeaning]];
 
 		var bitmap = inputISO.substr(4, 64);
 		var bitmapEnd = 68;
@@ -95,7 +98,7 @@ angular.module('isoApp',['ngRoute'])
 			};
 		};
 
-		req.res.push({dataType: "Bitmap", raw: bitmap, meaning: bitmap});
+		req.res.push([ "Bitmap", bitmap, bitmap]);
 
 		req.dataElements = inputISO.substring(bitmapEnd);
 
@@ -120,7 +123,7 @@ angular.module('isoApp',['ngRoute'])
 						showErrorMessage();
 						return //req.errorMessage = dataElementDefinition[i] + ' - ' + x + ' - contains invalid elements. Please check.'
 					};
-					req.res.push({dataType: dataElementDefinition[i], raw: x, meaning: x});
+					req.res.push([dataElementDefinition[i], x, x]);
 					req.dataElements = req.dataElements.substring(actualFeildLength);
 				} else{
 					var x = req.dataElements.substring(0, actualFeildLength);
@@ -129,13 +132,12 @@ angular.module('isoApp',['ngRoute'])
 						showErrorMessage();
 						return //req.errorMessage = dataElementDefinition[i] + ' - ' + x + ' - contains invalid elements. Please check.'
 					};
-					req.res.push({dataType: dataElementDefinition[i], raw: x, meaning: x});
+					req.res.push([dataElementDefinition[i], x, x]);
 					req.dataElements = req.dataElements.substring(actualFeildLength);
 				};
 			};
 		};
 
-		var table = $('#ISO_results');
 		initializeResultsTable(table);
 		
 	}
@@ -174,7 +176,7 @@ angular.module('isoApp',['ngRoute'])
 			initializeResultsTable(table);
 		};
 
-	function validateDataElement(dataElementDefinition, dataElement)	{ // Possible improvement - make this function a global function available to both controllers, or service/controller which can be injected into both controllers
+		function validateDataElement(dataElementDefinition, dataElement)	{ // Possible improvement - make this function a global function available to both controllers, or service/controller which can be injected into both controllers
 		var alphabetsOnly = false;
 		var numericOnly = false;
 		var specialCharOnly = false;
@@ -223,7 +225,7 @@ angular.module('isoApp',['ngRoute'])
 		};
 
 		return false;
-	};
+		};
 
 		function initializeResultsTable(table)	{
 			if (! $.fn.DataTable.fnIsDataTable(table)) {
@@ -232,10 +234,11 @@ angular.module('isoApp',['ngRoute'])
 				}, 1);
 			} else  {
 				setTimeout(function () {
-					table.dataTable().fnDraw()	// redraw the results table
+					table.dataTable().fnClearTable();
+					table.dataTable().fnAddData(req.res);
+					table.dataTable().fnDraw();	// redraw the results table
 				}, 1);
-			}
-			
+			}			
 		};
 
 		function hexToAscii(hexInput) {
