@@ -35,7 +35,10 @@ angular.module('isoApp',['ngRoute'])
 
 	req.data;
 
+	req.processing;
+
 	req.startAnalysis = function($scope)	{
+		req.processing = true;
 		if (req.isHex) {
 			req.iso = req.data;
 			req.iso = hexDecompose(req.iso);
@@ -174,6 +177,7 @@ angular.module('isoApp',['ngRoute'])
 			$('#text_area').attr('class', 'form-group has-error');
 			var table = $('#ISO_results');
 			initializeResultsTable(table);
+			req.processing = false;
 		};
 
 		function validateDataElement(dataElementDefinition, dataElement)	{ // Possible improvement - make this function a global function available to both controllers, or service/controller which can be injected into both controllers
@@ -231,12 +235,14 @@ angular.module('isoApp',['ngRoute'])
 			if (! $.fn.DataTable.fnIsDataTable(table)) {
 			  setTimeout(function () {
 			  	TableDatatablesButtons.init(); // initialize the results table
+			  	req.processing = false;
 				}, 1);
 			} else  {
 				setTimeout(function () {
 					table.dataTable().fnClearTable();
 					table.dataTable().fnAddData(req.res);
 					table.dataTable().fnDraw();	// redraw the results table
+					req.processing = false;
 				}, 1);
 			}			
 		};
@@ -458,20 +464,41 @@ angular.module('isoApp',['ngRoute'])
  // get info if a person is logged in
  currentUser.loggedIn = Auth.isLoggedIn();
 
- Auth.getUser()
- 	.success(function(data) {
- 	currentUser.user = data;
- 	});
+ if (currentUser.loggedIn) {
+ 		//Get the users full details
+ 		Auth.getUser()
+ 			.success(function(data) {
+ 				Auth.getUserByUsername(data.username)
+ 					.success(function(data)	{
+ 						currentUser.user = data;
+ 					}); 	
+ 			});
+ } else if ($location.path() != '/')	{ // Check if user is already on the login page
+ 	// Redirect to the login page
+ 	toastr.error('Your are not currently logged in', 'Please Log In');
+ 	$location.path('/');
+ };
 
  // check to see if a user is logged in on every request
  $rootScope.$on('$routeChangeStart', function() {
+ 		//currentUser.processing = true;
  		currentUser.loggedIn = Auth.isLoggedIn();
 
- // get user information on route change
- Auth.getUser()
- 	.success(function(data) {
- 	currentUser.user = data;
- 	});
+ 		if (currentUser.loggedIn) {
+ 				//Get the users full details
+ 				Auth.getUser()
+ 					.success(function(data) {
+ 						Auth.getUserByUsername(data.username)
+ 							.success(function(data)	{
+ 								currentUser.user = data;
+ 							}); 	
+ 					});
+ 			angular.element(document).ready(function()	{currentUser.processing = false;}); 			
+ 		} else if ($location.path() != '/')	{
+ 			// Redirect to the login page
+ 			toastr.error('Your are not currently logged in', 'Please Log In');
+ 			$location.path('/');
+ 		};
  });
 
  // function to handle login form
@@ -485,11 +512,9 @@ angular.module('isoApp',['ngRoute'])
 
  		
  		if (data.success) {
- 			// if a user successfully logs in, redirect to users page
+ 			// if a user successfully logs in, redirect to main page
  			$location.path('/analyzer');
- 			//window.location = "/analyzer";
- 			// take out the processing icon
- 			currentUser.processing = false;
+ 			//window.location = "/analyzer"; 			
  		}
  		else
 			toastr.error(data.message, "Login error");
@@ -510,6 +535,7 @@ angular.module('isoApp',['ngRoute'])
 
  $scope.$on('$viewContentLoaded', function() {
  	App.init();  // initialize core components
+ 	currentUser.processing = false; // take out the processing icon
  	if (window.location.pathname == '/') {
  		Login.init(); // initialize login components for the login page
  	};
@@ -554,10 +580,18 @@ angular.module('isoApp',['ngRoute'])
  // get the logged in user
  authFactory.getUser = function() {
  	if (AuthToken.getToken())
- 		return $http.get('/api/me', { cache: true});
+ 		return $http.get('/api/me', { cache: false});
  	else
  		return $q.reject({ message: 'User is not logged in.' });
  	};
+
+ 	authFactory.getUserByUsername = function(username)	{
+ 		if (AuthToken.getToken) {
+ 			return $http.get('/api/username/' + username);
+ 		} else{
+ 			return $q.reject({ message: 'User is not logged in.' });
+ 		};
+ 	}
 
  // return auth factory object
  return authFactory;
@@ -619,7 +653,7 @@ angular.module('isoApp',['ngRoute'])
  	// if our server returns a 403 forbidden response
  	if (response.status == 403) {
  		AuthToken.clearToken();
- 		$location.path('/login');
+ 		$location.path('/');
  	}
 
  	// return the errors from the server as a promise
@@ -744,7 +778,7 @@ angular.module('isoApp',['ngRoute'])
 })
 
 // controller applied to user creation page
-.controller('userCreateController', function(User) {
+.controller('userCreateController', function(User, $location) {
 
 	var vm = this;
 
@@ -768,7 +802,7 @@ angular.module('isoApp',['ngRoute'])
  				// clear the form
  				vm.userData = {};
  				if (data.success) {
- 					toastr.success("Access Granted!",'Success');
+ 					toastr.success(data.message,'Success');
  					$location.path('/analyzer');
  					//window.location = "/analyzer";
  				} else{
