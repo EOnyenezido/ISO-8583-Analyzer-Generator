@@ -1,0 +1,24 @@
+{
+  "name": "ISO_8583_Analyzer_Generator",
+  "version": "1.0.0",
+  "description": "A tool for analyzing and generating ISO 8583 messages",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EOnyenezido/ISO-8583-Analyzer-Generator.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Onyenezido Chukwuemeka",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "~1.9.3",
+    "express": "~4.13.3",
+    "jsonwebtoken": "~5.5.4",
+    "mongoose": "~3.8.19",
+    "morgan": "~1.5.0"
+  }
+}
