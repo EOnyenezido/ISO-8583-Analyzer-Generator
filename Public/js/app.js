@@ -461,7 +461,7 @@ angular.module('isoApp',['ngRoute'])
 
  var currentUser = this;
 
- // get info if a person is logged in
+ /*// get info if a person is logged in
  currentUser.loggedIn = Auth.isLoggedIn();
 
  if (currentUser.loggedIn) {
@@ -477,7 +477,7 @@ angular.module('isoApp',['ngRoute'])
  	// Redirect to the login page
  	toastr.error('Your are not currently logged in', 'Please Log In');
  	$location.path('/');
- };
+ };*/
 
  // check to see if a user is logged in on every request
  $rootScope.$on('$routeChangeStart', function() {

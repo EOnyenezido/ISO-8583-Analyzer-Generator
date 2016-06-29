@@ -44,44 +44,6 @@ apiRouter.post('/authenticate', function(req, res)	{
 	});
 })
 
-// Middleware for our API route
-apiRouter.use(function(req, res, next)	{
-	// Verifying the token
-	var token = req.body.token || req.param('token') || req.headers['x-access-token'];
-
-	if (token)	{
-
-		//Verify the token
-		jwt.verify(token, config.secret, function(err, decoded)	{
-			// Wrong token
-			if (err)	{
-				res.status(403).send({success: false, message: 'Failed to authenticate token, incorrect or expired token'});
-			}
-			else	{
-				// If everything is good pass on to other routes
-				req.decoded = decoded;
-
-				next();
-			}
-		})
-	}
-	else
-		// no token
-	res.status(403).send({success: false, message: 'No token provided'});
-
-	console.log('Somebody just called our API with ' + req.method + req.url);
-});
-
-apiRouter.get('/', function(req, res)	{
-	res.json({ message: 'Welcome to our API!'});
-});
-
-apiRouter.get('/me', function(req, res)	{
-	res.send(req.decoded);
-});
-
-// More api routes to be added here
-// On routes that end with /users - used to chain http actions get post etc.
 apiRouter.route('/users')
 	// Create a user (accessed at POST http://localhost:8080/api/users)
 	.post(function(req, res)	{
@@ -108,6 +70,43 @@ apiRouter.route('/users')
 			res.json({success: true, message: 'Access successfully granted. Redirecting to dashboard...'})
 		});
 	})
+
+// Middleware for our API route
+apiRouter.use(function(req, res, next)	{
+	// Verifying the token
+	var token = req.body.token || req.param('token') || req.headers['x-access-token'];
+
+	if (token)	{
+
+		//Verify the token
+		jwt.verify(token, config.secret, function(err, decoded)	{
+			// Wrong token
+			if (err)	{
+				res.status(403).send({success: false, message: 'Failed to authenticate token, incorrect or expired token'});
+			}
+			else	{
+				// If everything is good pass on to other routes
+				req.decoded = decoded;
+
+				next();
+			}
+		})
+	}
+	else
+		// no token
+	res.status(403).send({success: false, message: 'No token provided'});
+});
+
+apiRouter.get('/', function(req, res)	{
+	res.json({ message: 'Welcome to our API!'});
+});
+
+apiRouter.get('/me', function(req, res)	{
+	res.send(req.decoded);
+});
+
+// More api routes to be added here
+apiRouter.route('/users')
 	// Get all the users
 	.get(function(req, res)	{
 		User.find(function(err, users)	{
