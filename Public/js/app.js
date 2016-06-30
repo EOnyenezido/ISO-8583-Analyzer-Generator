@@ -119,6 +119,10 @@ angular.module('isoApp',['ngRoute'])
 				};
 				if (variableFeildLength) {
 					actualFeildLength = parseInt(req.dataElements.substring(0, variableFeild));
+					if (isNaN(actualFeildLength)) {
+						showErrorMessage();
+						return req.errorMessage = dataElementDefinition[i] + ' field length "' + req.dataElements.substring(0, variableFeild) + '" is either not a number or is greater than the permitted maximum of - "' + dataLength[i].replace(/^\D+/g, "") + '"';
+					};
 					req.dataElements = req.dataElements.substring(variableFeild)
 					var x = req.dataElements.substring(0, actualFeildLength);
 					var validationFailed = validateDataElement(dataElementDefinition[i], x);
@@ -401,7 +405,16 @@ angular.module('isoApp',['ngRoute'])
 	};
 
 	function binToHex(binInput)	{
-		return parseInt(binInput, 2).toString(16);
+		var res = '';
+		var lookupTable = {'0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100', '5': '0101', '6': '0110', '7': '0111', '8': '1000', '9': '1001', 'a': '1010', 'b': '1011', 'c': '1100', 'd': '1101', 'e': '1110', 'f': '1111', 'A': '1010', 'B': '1011', 'C': '1100', 'D': '1101', 'E': '1110', 'F': '1111'};
+		for (var i = 0, len = binInput.length; i < len; i+=4)    {
+		  	for (var prop in lookupTable)	{
+		  		if (lookupTable[prop] == binInput.substr(i,4))	{
+		  			res += prop;
+		  		}
+		  	}
+		}
+		return res;
 	};
 
 	function validateDataElement(dataElementDefinition, dataElement)	{ // Possible improvement - make this function a global function available to both controllers, or service/controller which can be injected into both controllers
@@ -422,7 +435,6 @@ angular.module('isoApp',['ngRoute'])
 			return true;
 		} else if (singleAlphaPlusNumerical && dataElement.replace(/[A-Za-z0-9]+/g, "").length > 0) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets, numbers are permitted. Please Check.';
-			console.log(dataElement.replace(/[A-Za-z0-9]+/g, "").length)
 			return true;
 		} else if (alphabetsOnly && numericOnly && !specialCharOnly && dataElement.replace(/[A-Za-z0-9]+/g, "").length > 0) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", contains invalid elements - "' + dataElement.replace(/[A-Za-z0-9]+/g, "") + '". Only alphabets and numbers are permitted. Please Check.';
@@ -449,6 +461,9 @@ angular.module('isoApp',['ngRoute'])
 			return true;
 		}else	if (!singleAlphaPlusNumerical && parseInt(dataElementDefinition.split('\n')[1].replace(/\D+/g, '')) < dataElement.length) {
 			req.errorMessage = dataElementDefinition + ' - "' + dataElement  + '", is longer than the permitted maximum of - "' + dataElementDefinition.split('\n')[1].replace(/\D+/g, '') + '" digits. Please Check.';
+			return true;
+		} else if (dataElementDefinition.split('\n')[1].indexOf('.') > -1 && isNaN(parseInt(dataElement.substr(0, dataElementDefinition.split('\n')[1].match(/\./g).length))))	{
+			req.errorMessage = dataElementDefinition + ' - field length "' + dataElement.substr(0, dataElementDefinition.split('\n')[1].match(/\./g).length)  + '", is not a number. Please include a number that defines the field length.';
 			return true;
 		};
 
@@ -480,24 +495,26 @@ angular.module('isoApp',['ngRoute'])
  };
 
  // check to see if a user is logged in on every request
- $rootScope.$on('$routeChangeStart', function() {
- 		//currentUser.processing = true;
- 		currentUser.loggedIn = Auth.isLoggedIn();
+ $rootScope.$on('$routeChangeStart', function(event, next, prev) {
+ 		if (next.$$route != undefined && next.$$route.originalPath != '/') { // needed to get the next location $location.path() returns the current location. It is not advisable to use the angularjs private property next.$$route though.
+ 			currentUser.processing = true;
+ 			currentUser.loggedIn = Auth.isLoggedIn();
 
- 		if (currentUser.loggedIn && $location.path() != '/') {
- 				//Get the users full details
- 				Auth.getUser()
- 					.success(function(data) {
- 						Auth.getUserByUsername(data.username)
- 							.success(function(data)	{
- 								currentUser.user = data;
- 							}); 	
- 					});
- 			angular.element(document).ready(function()	{currentUser.processing = false;}); 			
- 		} else if ($location.path() != '/')	{
- 			// Redirect to the login page
- 			toastr.error('Your are not currently logged in', 'Please Log In');
- 			$location.path('/');
+ 			if (currentUser.loggedIn && $location.path() != '/') {
+ 					//Get the users full details
+ 					Auth.getUser()
+ 						.success(function(data) {
+ 							Auth.getUserByUsername(data.username)
+ 								.success(function(data)	{
+ 									currentUser.user = data;
+ 								}); 	
+ 						});
+ 				angular.element(document).ready(function()	{currentUser.processing = false;}); 			
+ 			} else if ($location.path() != '/')	{
+ 				// Redirect to the login page
+ 				toastr.error('Your are not currently logged in', 'Please Log In');
+ 				$location.path('/');
+ 			};
  		};
  });
 

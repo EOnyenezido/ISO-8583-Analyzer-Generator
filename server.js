@@ -59,9 +59,34 @@ app.get('*', function(req, res)	{
 	res.sendFile(path.join(__dirname + '/Public/index.html'));
 });
 
-/*app.get('*', function(req, res)	{
-	res.sendFile(path.join(__dirname + '/public/users.html'));
-});*/
+// Create a our admin user
+// Check if the admin user already exists
+User.findOne({username: config.admin.username}, function(err, user)	{
+	if (err) res.send(err);
+	// If the admin user has not been created, create the admin user
+	if (user == null) {
+		var user = new User();
+		// Set the admin user information from the config file or environment variable
+		user.name = config.admin.name;
+		user.email = config.admin.email;
+		user.username = config.admin.username;
+		user.password = config.admin.password;
+		user.approved = true;
+		user.isAdmin = true;
+		// Save the user and check for errors
+		user.save(function(err)	{
+			if (err) {
+				// Duplicate entry
+				if (err.code == 11000)	{
+					return;
+				}
+				else	{
+					return console.log(err);
+				}
+			}
+		});
+	};
+})
 
 
 // START THE SERVER
