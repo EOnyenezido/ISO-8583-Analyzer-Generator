@@ -479,7 +479,7 @@ angular.module('isoApp',['ngRoute'])
  // get info if a person is logged in
  currentUser.loggedIn = Auth.isLoggedIn();
 
- if (currentUser.loggedIn && $location.path() != '/') {
+ if (currentUser.loggedIn) {
  		//Get the users full details
  		Auth.getUser()
  			.success(function(data) {
@@ -495,28 +495,49 @@ angular.module('isoApp',['ngRoute'])
  };
 
  // check to see if a user is logged in on every request
- $rootScope.$on('$routeChangeStart', function(event, next, prev) {
- 		if (next.$$route != undefined && next.$$route.originalPath != '/') { // needed to get the next location $location.path() returns the current location. It is not advisable to use the angularjs private property next.$$route though.
- 			currentUser.processing = true;
- 			currentUser.loggedIn = Auth.isLoggedIn();
+ $rootScope.$on('$routeChangeStart', function() {
+ 		currentUser.processing = true;
+ 		currentUser.loggedIn = Auth.isLoggedIn();
 
- 			if (currentUser.loggedIn && $location.path() != '/') {
- 					//Get the users full details
- 					Auth.getUser()
- 						.success(function(data) {
- 							Auth.getUserByUsername(data.username)
- 								.success(function(data)	{
- 									currentUser.user = data;
- 								}); 	
- 						});
- 				angular.element(document).ready(function()	{currentUser.processing = false;}); 			
- 			} else if ($location.path() != '/')	{
- 				// Redirect to the login page
- 				toastr.error('Your are not currently logged in', 'Please Log In');
- 				$location.path('/');
- 			};
+ 		if (currentUser.loggedIn && $location.path() != '/') {
+ 				//Get the users full details
+ 				Auth.getUser()
+ 					.success(function(data) {
+ 						Auth.getUserByUsername(data.username)
+ 							.success(function(data)	{
+ 								currentUser.user = data;
+ 							}); 	
+ 					});
+ 			angular.element(document).ready(function()	{currentUser.processing = false;}); 			
+ 		} else if ($location.path() != '/')	{
+ 			// Redirect to the login page
+ 			toastr.error('Your are not currently logged in', 'Please Log In');
+ 			$location.path('/');
  		};
  });
+
+ // function to handle logging out
+ currentUser.doLogout = function() {
+ 	Auth.logout();
+ 	// reset all user info
+ 	currentUser.user = {};
+ 	$location.path('/');
+ 	//window.location = "/";
+ };
+
+ $scope.$on('$viewContentLoaded', function() {
+ 	App.init();  // initialize core components
+ 	currentUser.processing = false; // take out the processing icon
+ 	if (window.location.pathname == '/') {
+ 		Login.init(); // initialize login components for the login page
+ 	};
+ });
+
+})
+
+.controller('loginController', function($scope, $rootScope, $location, Auth) {
+
+ var currentUser = this;
 
  // function to handle login form
  currentUser.doLogin = function() {
@@ -539,15 +560,6 @@ angular.module('isoApp',['ngRoute'])
  			currentUser.processing = false;
  		
  	});
- };
-
- // function to handle logging out
- currentUser.doLogout = function() {
- 	Auth.logout();
- 	// reset all user info
- 	currentUser.user = {};
- 	$location.path('/');
- 	//window.location = "/";
  };
 
  $scope.$on('$viewContentLoaded', function() {
@@ -848,7 +860,7 @@ angular.module('isoApp',['ngRoute'])
  //login view
  .when('/', {
 		templateUrl : '../login.html',
-		controller: 'mainController as login'
+		controller: 'loginController as login'
  })
 
  //analyzer view
