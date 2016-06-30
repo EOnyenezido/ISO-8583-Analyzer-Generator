@@ -472,9 +472,10 @@ angular.module('isoApp',['ngRoute'])
 
 }])
 
-.controller('mainController', function($scope, $rootScope, $location, Auth) {
+.controller('mainController', function($scope, $rootScope, $location, Auth, $timeout) {
 
  var currentUser = this;
+ currentUser.processing = true;
 
  // get info if a person is logged in
  currentUser.loggedIn = Auth.isLoggedIn();
@@ -496,7 +497,6 @@ angular.module('isoApp',['ngRoute'])
 
  // check to see if a user is logged in on every request
  $rootScope.$on('$routeChangeStart', function() {
- 		currentUser.processing = true;
  		currentUser.loggedIn = Auth.isLoggedIn();
 
  		if (currentUser.loggedIn && $location.path() != '/') {
@@ -507,8 +507,7 @@ angular.module('isoApp',['ngRoute'])
  							.success(function(data)	{
  								currentUser.user = data;
  							}); 	
- 					});
- 			angular.element(document).ready(function()	{currentUser.processing = false;}); 			
+ 					}); 			
  		} else if ($location.path() != '/')	{
  			// Redirect to the login page
  			toastr.error('Your are not currently logged in', 'Please Log In');
@@ -527,10 +526,13 @@ angular.module('isoApp',['ngRoute'])
 
  $scope.$on('$viewContentLoaded', function() {
  	App.init();  // initialize core components
- 	currentUser.processing = false; // take out the processing icon
+ 	//currentUser.processing = false; // take out the processing icon
  	if (window.location.pathname == '/') {
  		Login.init(); // initialize login components for the login page
  	};
+ 	$timeout(function()	{
+ 		return currentUser.processing = false;
+ 	}, 300);
  });
 
 })
