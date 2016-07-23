@@ -1,4 +1,4 @@
-angular.module('isoApp',['ngRoute'])
+angular.module('isoApp',['ngRoute','ngFileUpload'])
 
 .controller('analyzer',['$scope',function(scope)	{
 
@@ -50,16 +50,16 @@ angular.module('isoApp',['ngRoute'])
 			var selectedFile = $('#dumpFile')[0].files[0]; // only the first file is read even if the user selects multiple files
 			if (selectedFile != undefined)	{
 				var reader = new FileReader();
-      		reader.onload = function(e) { 
+      		reader.onload = function(e) {
 	      		req.iso = e.target.result;
 	      		req.iso = postilionDumpDecompose(req.iso);
 	      		req.analyze(req.iso);
 	      		scope.$digest(); // called to update the dom based on the results of req.analyze(). Without this the dom does not get updated.
-      		}     		
+      		}
       		reader.readAsText(selectedFile);
 			}	else  {
 				req.iso = postilionDumpDecompose(req.iso);
-				req.analyze(req.iso);			
+				req.analyze(req.iso);
 			}
 		}
 		else if (req.isPowerCardDump)	{ // analysis for a PowerCard dump
@@ -146,7 +146,7 @@ angular.module('isoApp',['ngRoute'])
 		};
 
 		initializeResultsTable(table);
-		
+
 	}
 
 		function hexDecompose(hexInput)	{
@@ -166,13 +166,13 @@ angular.module('isoApp',['ngRoute'])
 
 		function postilionDumpDecompose(dump)	{
 			var lines = dump.split('\n');
-			
+
 			var res = '';
-			
+
 			for (var i = 0, len = lines.length; i < len; i++)	{
 				res += lines[i].substring(12, 60);
 			}
-			
+
 			return hexDecompose(res.replace(/\s/g, ''));
 		};
 
@@ -248,7 +248,7 @@ angular.module('isoApp',['ngRoute'])
 					table.dataTable().fnDraw();	// redraw the results table
 					req.processing = false;
 				}, 1);
-			}			
+			}
 		};
 
 		function hexToAscii(hexInput) {
@@ -275,14 +275,14 @@ angular.module('isoApp',['ngRoute'])
 			if (window.File && window.FileReader && window.FileList && window.Blob) {
 			  if (file) {
       		var reader = new FileReader();
-      		var results;     		
+      		var results;
       		reader.readAsText(file);
-      		reader.onload = function(e) { 
+      		reader.onload = function(e) {
 	      		var contents = e.target.result;
-	      		results = {success: true, contents: contents}; 
+	      		results = {success: true, contents: contents};
       		}
       		return results;
-    		} else { 
+    		} else {
       		return {success: false, error: "Failed to load file"};
     		}
 			} else {
@@ -311,7 +311,7 @@ angular.module('isoApp',['ngRoute'])
 		mti += isoClasses.indexOf(req.isoClass).toString();
 		mti += isoFunctions.indexOf(req.isoFunction).toString();
 		mti += isoOrigin.indexOf(req.isoOriginator).toString();
-		
+
 		var bitmap = '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
 
 		var dataElementsArray = new Array(128);
@@ -335,14 +335,14 @@ angular.module('isoApp',['ngRoute'])
 			dataElementsArray[dataElementDefinition.indexOf(isoDataElements.children()[i].innerHTML)] = isoDataElements.children()[i+1].innerHTML;
 			bitmap = bitmap.substr(0, dataElementDefinition.indexOf(isoDataElements.children()[i].innerHTML)) + '1' + bitmap.substr(dataElementDefinition.indexOf(isoDataElements.children()[i].innerHTML) + 1);
 		};
-		if (bitmap.substr(64).indexOf('1') > -1) { // chooses between a 64-bit and 128-bit bitmap based on the prescence or abscence of any data element that exceeds the 64 bit  
+		if (bitmap.substr(64).indexOf('1') > -1) { // chooses between a 64-bit and 128-bit bitmap based on the prescence or abscence of any data element that exceeds the 64 bit
 			bitmap = '1' + bitmap.substr(1);
 		}	else  {
 			bitmap = bitmap.substr(0, 64);
 		};
 
 		var dataElement = dataElementsArray.join('');
-		
+
 		req.raw = mti + bitmap + dataElement;
 
 		generateHex(mti, bitmap, dataElement);
@@ -487,7 +487,7 @@ angular.module('isoApp',['ngRoute'])
  				Auth.getUserByUsername(data.username)
  					.success(function(data)	{
  						currentUser.user = data;
- 					}); 	
+ 					});
  			});
  } else if ($location.path() != '/')	{ // Check if user is already on the login page
  	// Redirect to the login page
@@ -506,8 +506,8 @@ angular.module('isoApp',['ngRoute'])
  						Auth.getUserByUsername(data.username)
  							.success(function(data)	{
  								currentUser.user = data;
- 							}); 	
- 					}); 			
+ 							});
+ 					});
  		} else if ($location.path() != '/')	{
  			// Redirect to the login page
  			toastr.error('Your are not currently logged in', 'Please Log In');
@@ -550,17 +550,17 @@ angular.module('isoApp',['ngRoute'])
  Auth.login(currentUser.loginData.username, currentUser.loginData.password)
  	.success(function(data) {
 
- 		
+
  		if (data.success) {
  			// if a user successfully logs in, redirect to main page
  			$location.path('/analyzer');
- 			//window.location = "/analyzer"; 			
+ 			//window.location = "/analyzer";
  		}
  		else
 			toastr.error(data.message, "Login error");
 			// take out the processing icon
  			currentUser.processing = false;
- 		
+
  	});
  };
 
@@ -572,6 +572,139 @@ angular.module('isoApp',['ngRoute'])
  	};
  });
 
+})
+
+.controller('profileController', function(User, Auth, Upload)	{
+	var currentUser = this;
+
+	var userData;
+
+	Auth.getUser()
+		.success(function(data) {
+			Auth.getUserByUsername(data.username)
+				.success(function(data)	{
+					currentUser.user = data;
+					userData = data;
+					currentUser.firstN = data.name.split(' ')[0];
+					currentUser.lastN = data.name.split(' ')[1];
+				});
+		});
+
+	currentUser.updateUser = function() {
+		currentUser.processing = true;
+
+		if (currentUser.userData.firstName != undefined) {
+			currentUser.userData.name = currentUser.userData.firstName + ' ' + currentUser.lastN;
+			currentUser.firstN = currentUser.userData.firstName;
+		};
+
+		if (currentUser.userData.lastName != undefined) {
+			currentUser.userData.name = currentUser.firstN + ' ' + currentUser.userData.lastName;
+			currentUser.lastN = currentUser.userData.lastName;
+		};
+
+		if (currentUser.userData.name || currentUser.userData.email || currentUser.userData.username) {
+			// use the create function in the userService
+ 			User.updateUser(currentUser.user._id, currentUser.userData)
+ 			.success(function(data) {
+ 				currentUser.processing = false;
+
+ 				// clear the form
+ 				currentUser.userData = {};
+ 				if (data.success) {
+
+ 					//Get the users new details
+ 					Auth.getUser()
+ 						.success(function(data) {
+ 							Auth.getUserByUsername(data.username)
+ 								.success(function(data)	{
+ 									currentUser.user = data;
+ 									userData = data;
+ 								});
+ 						});
+ 					toastr.success(data.message,'Success');
+ 				} else{
+ 					toastr.error(data.message,'Failure');
+ 				};
+			});
+		} else{
+			// display a warning message if fields are incomplete
+			toastr.warning('Please complete any feilds below!','No details');
+		};
+	};
+
+	currentUser.updatePassword = function()	{
+		currentUser.errorMessage = '';
+		if (currentUser.userData.npword != currentUser.userData.npwordCheck) {
+			angular.element('.npword').attr('class', 'form-group npword has-error');
+			return currentUser.errorMessage = 'Passwords do not match!';
+		};
+
+		 Auth.login(currentUser.user.username, currentUser.userData.cpword)
+		 	.success(function(data) {
+
+
+		 		if (data.success) {
+		 			User.updateUser(currentUser.user._id, {password: currentUser.userData.npword})
+		 			.success(function(data) {
+
+		 				// clear the form
+		 				currentUser.userData = {};
+		 				if (data.success) {
+		 					toastr.success('Password changed successfully','Success');
+		 					angular.element('.npword').attr('class', 'form-group npword');
+		 					angular.element('.cpword').attr('class', 'form-group cpword');
+		 				} else{
+		 					toastr.error(data.message,'Failure');
+		 				};
+					});
+		 		}
+		 		else  {
+		 			angular.element('.cpword').attr('class', 'form-group cpword has-error');
+		 			return currentUser.errorMessage = "Password validation failed!. Please enter your current password again.";
+		 		}
+		 	});
+	};
+
+	currentUser.changePicture = function()	{
+		if (currentUser.pictureForm.image.$valid && currentUser.imageFile) {
+			Upload.upload({
+				url: 'api/img/' + currentUser.user._id,
+				data: {image: currentUser.imageFile}
+			}).then(function(resp)	{
+				if (resp.status = 200 && resp.data.success) {
+					toastr.success(resp.data.message, 'Picture Changed!');
+					// clear the form
+					currentUser.userData = {};
+					// get the user's new picture
+ 					Auth.getUser()
+ 						.success(function(data) {
+ 							Auth.getUserByUsername(data.username)
+ 								.success(function(data)	{
+ 									currentUser.user = data;
+ 									userData = data;
+ 								});
+ 						});
+
+
+				} else if (resp.status = 200 && !resp.data.success) {
+					toastr.error(resp.data.message, 'Error!');
+				} else {
+					toastr.error(resp.statusText, 'Error!');
+				};
+			})
+		};
+	};
+
+	currentUser.clear = function()	{
+		if (confirm('Are you sure?\n\nThis would clear all the data you have entered.')) {
+			currentUser.userData = {};
+			currentUser.errorMessage = '';
+			angular.element('.npword').attr('class', 'form-group npword');
+			angular.element('.cpword').attr('class', 'form-group cpword');
+			toastr.success('Data cleared successfully', 'Entry cleared');
+		};
+	};
 })
 
 .factory('Auth', function($http, $q, AuthToken) {
@@ -699,7 +832,7 @@ angular.module('isoApp',['ngRoute'])
 
 	// create a new object
 	var userFactory = {};
-	
+
 	// get a single user
 	userFactory.getUser = function(id) {
 		return $http.get('/api/users/' + id);
@@ -779,7 +912,7 @@ angular.module('isoApp',['ngRoute'])
   		} else{
   			toastr.error(data.message, "Failure");
   		};
-  		
+
   		User.allUsers()
   		.success(function(data) {
   			vm.processing = false;
@@ -798,7 +931,7 @@ angular.module('isoApp',['ngRoute'])
   		} else{
   			toastr.error(data.message, "Failure");
   		};
-  		
+
   		User.allUsers()
   		.success(function(data) {
   			vm.processing = false;
@@ -847,6 +980,36 @@ angular.module('isoApp',['ngRoute'])
 	};
 })
 
+.directive('fileModel', ['$parse', function ($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            var model = $parse(attrs.fileModel);
+            var modelSetter = model.assign;
+
+            element.bind('change', function(){
+                scope.$apply(function(){
+                    modelSetter(scope, element[0].files[0]);
+                });
+            });
+        }
+    };
+}])
+
+.directive('altSrc', function() {
+	return {
+    restrict: 'A',
+    link: function(scope, element, attrs){
+			if(_.isEmpty(attrs.ngSrc)){
+				element.attr('src', attrs.altSrc);
+			}
+			element.bind('error', function(){
+				element.attr('src', attrs.altSrc);
+			});
+    }
+  };
+})
+
 // application configuration to integrate token into requests
 .config(function($httpProvider) {
 
@@ -880,6 +1043,12 @@ angular.module('isoApp',['ngRoute'])
  // generator view
  .when('/generator', {
  		templateUrl: '../generator.html',
+ 		controller: 'mainController as main'
+ })
+
+ // profile view
+ .when('/profile', {
+ 		templateUrl: '../profile.html',
  		controller: 'mainController as main'
  })
 

@@ -1,6 +1,10 @@
 var User = require('../model/user.js'); // grab our user model
 var config = require('../../config.js'); // grab our configuration
 var jwt = require('jsonwebtoken');
+var fs = require('fs');
+var path = require('path');
+var multer = require('multer'); // multer for parsing multitype/form-data posts
+var profile = multer({dest: path.resolve(__dirname + '/../../public/assets/img/profile_pictures')}); // directory for saving profile pictures
 
 // We are not grabbing app or express because we want to pass them as variables when we grab api.js from our main server.js
 // We would do this by wrapping the code in module.exports as a function
@@ -152,7 +156,7 @@ apiRouter.route('/users/:user_id')
 			user.save(function(err)	{
 				if (err) res.send(err);
 				// Return a message
-				res.send({message: 'User updated successfully!'});
+				res.send({success: true, message: 'User details updated successfully!'});
 			});
 		});
 	})
@@ -165,7 +169,25 @@ apiRouter.route('/users/:user_id')
 			// Send a message
 			res.send({message: 'User successfully deleted!'});
 		});
-	});
+	})
+
+apiRouter.route('/img/:user_id')
+	.post(profile.single('image'), function (req, res) {
+		console.log(req.file);
+		var imgUrl = req.params.user_id + '.' + req.file.mimetype.split('/')[1];
+		fs.rename(req.file.path, path.resolve(req.file.path + '/../' + req.params.user_id + '.' + req.file.mimetype.split('/')[1]), function(err){
+			if (err) return res.json({success: false, message: err});
+		});
+		User.findById(req.params.user_id, function(err, user)	{
+			if (err) return res.send(err);
+			user.imgUrl = imgUrl;
+			user.save(function(err)	{
+				if (err) return res.send(err);
+				// Return a message
+				res.json({success: true, message: 'Profile picture changed successfully'});
+			});
+		})
+	})
 
 
 	return apiRouter;

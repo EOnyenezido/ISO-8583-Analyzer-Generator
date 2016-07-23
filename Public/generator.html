@@ -25,7 +25,7 @@
             <div class="top-menu">
                 <ul class="nav navbar-nav pull-right">
                         <li class="dropdown dropdown-user dropdown-dark">
-                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" style="background-color: transparent!important;">
                                 <span class="username username-hide-mobile">Hi, {{main.user.name}}</span>
                             </a>
                         </li>
@@ -34,10 +34,14 @@
                     </li>
                     <!-- BEGIN USER LOGIN DROPDOWN -->
                     <li class="dropdown dropdown-user dropdown-dark">
-                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                            <img alt="" class="img-circle" src="assets/img/profile_picture.png">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" style="background-color: transparent!important;">
+                            <img alt="" class="img-circle" ng-src="assets/img/profile_pictures/{{ main.user.imgUrl }}" alt-src="assets/img/profile_pictures/default.png">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-default">
+                            <li>
+                                <a ng-href="/profile">
+                                    <i class="icon-user"></i> Profile </a>
+                            </li>
                             <li>
                                 <a href="javascript;" ng-click="main.doLogout()">
                                     <i class="icon-key"></i> Log Out </a>
@@ -46,7 +50,7 @@
                     </li>
                     <!-- END USER LOGIN DROPDOWN -->
                     <!-- BEGIN QUICK SIDEBAR TOGGLER -->
-                    <li class="dropdown dropdown-extended quick-sidebar-toggler">
+                    <li class="dropdown dropdown-extended quick-sidebar-toggler" ng-click="main.doLogout()">
                         <span class="sr-only">History</span>
                         <i class="icon-logout"></i>
                     </li>
@@ -82,7 +86,7 @@
                             <span class="arrow"></span>
                         </a>
                         <ul class="dropdown-menu pull-left">
-                            
+
                         </ul>
                     </li>
                     <li class="menu-dropdown classic-menu-dropdown active">
@@ -90,7 +94,7 @@
                             <span class="arrow"></span>
                         </a>
                         <ul class="dropdown-menu pull-left">
-                            
+
                         </ul>
                     </li>
                     <li class="menu-dropdown classic-menu-dropdown" ng-if="main.user.isAdmin">
@@ -98,7 +102,7 @@
                             <span class="arrow"></span>
                         </a>
                         <ul class="dropdown-menu pull-left">
-                            
+
                         </ul>
                     </li>
                 </ul>

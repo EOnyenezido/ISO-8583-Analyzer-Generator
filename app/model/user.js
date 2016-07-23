@@ -10,7 +10,8 @@ var UserSchema = new Schema({
 	approved: Boolean,
 	isAdmin: Boolean,
 	username: { type: String, required: true, index: {unique: true}},
-	password: { type: String, required: true, select: false}
+	password: { type: String, required: true, select: false},
+	imgUrl: String
 });
 
 // hash the password before the user is saved
