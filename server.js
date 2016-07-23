@@ -40,7 +40,7 @@ app.use(morgan('dev'));
 
 // Set static files location
 // All frontend requests will be directed to this folder, nobody can access the root folder
-app.use(express.static(__dirname + '/Public'));
+app.use(express.static(__dirname + '/public'));
 
 // REGISTER OUR ROUTES
 // ==============================================
@@ -56,7 +56,7 @@ app.use('/api', apiRoutes);
 // Must come after API routes
 
 app.get('*', function(req, res)	{
-	res.sendFile(path.join(__dirname + '/Public/index.html'));
+	res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
 // Create a our admin user
